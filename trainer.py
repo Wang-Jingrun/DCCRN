@@ -1,10 +1,10 @@
 import os, sys, time
 from pypesq import pesq
 from torch.optim.lr_scheduler import ReduceLROnPlateau
-from pytorch_lightning.callbacks import EarlyStopping
 
 from model.dccrn import *
 from dataLoader import *
+from utils import *
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -23,13 +23,12 @@ class Trainer(object):
         self.optimizer = optimizer(self.model.parameters(), lr=self.conf['learning_rate'])
 
         # 训练策略
-        if self.conf['scheduler']:
-            self.scheduler = ReduceLROnPlateau(
-                optimizer=self.optimizer, factor=self.conf['scheduler']['factor'],
-                patience=self.conf['scheduler']['patience'], verbose=self.conf['scheduler']['verbose']
-            )
-        if self.conf["train"]["early_stop"]:
-            self.early_stop = EarlyStopping(monitor="test_loss", patience=20, verbose=True)
+        self.scheduler = ReduceLROnPlateau(
+            optimizer=self.optimizer, factor=self.conf['scheduler']['factor'],
+            patience=self.conf['scheduler']['patience'], verbose=self.conf['scheduler']['verbose']
+        )
+
+        self.early_stop = EarlyStopping(patience=20, verbose=True)
 
 
     def init_dataloader(self):
@@ -115,6 +114,11 @@ class Trainer(object):
 
             if self.conf['save_path']:
                 self.save(e)
+
+            self.early_stop(test_loss)
+            if self.early_stop.early_stop:
+                print("Early stopping!")
+                break
 
     def pesq_score(self):
         """

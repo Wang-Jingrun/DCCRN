@@ -1,14 +1,8 @@
 device: cuda:0
 
 train:
-  batch_size: 1
-  epochs: 100
-  half_lr: y
-  early_stop: y
-
-# filterbank
-n_fft: 512
-n_s: 128
+  batch_size: 15
+  epochs: 1000
 
 # optim
 optimizer: Adam
