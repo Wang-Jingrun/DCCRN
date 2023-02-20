@@ -1,0 +1,29 @@
+device: cuda:0
+
+train:
+  batch_size: 1
+  epochs: 100
+  half_lr: y
+  early_stop: y
+
+# filterbank
+n_fft: 512
+n_s: 128
+
+# optim
+optimizer: Adam
+learning_rate: 0.001
+weight_decay: 0.   #regular
+
+# scheduler
+scheduler:
+  factor: 0.5
+  patience: 3
+  verbose: y
+
+# path
+save_path: ./output
+load_path: ./output/model_state_SNR=0-PESQ=2.76.pth
+dataset_path: D:\PycharmProjects\DATASETS
+train_files: LibriSpeech-Noisy.txt
+test_files: LibriSpeech-Noisy-test-snr=0.txt
