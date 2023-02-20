@@ -141,7 +141,7 @@ class Trainer(object):
                 psq += pesq(clean_x[i], pred_x[i], 16000)
 
             psq /= len(clean_x)
-            print(psq)
+            # print(psq)
             self.test_pesq += psq
             counter += 1
 

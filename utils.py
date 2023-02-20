@@ -60,7 +60,8 @@ class EarlyStopping:
         self.val_loss_min = np.Inf
         self.delta = delta
 
-    def __call__(self, val_loss, model, path):
+    # def __call__(self, val_loss, model, path):
+    def __call__(self, val_loss):
         # print("val_loss={}".format(val_loss))
         score = -val_loss
         if self.best_score is None:
@@ -76,7 +77,7 @@ class EarlyStopping:
             # self.save_checkpoint(val_loss,model,path)
             self.counter = 0
 
-    def save_checkpoint(self, val_loss, model,path):
+    def save_checkpoint(self, val_loss, model, path):
         if self.verbose:
             print(
                 f'Validation loss decreased ({self.val_loss_min:.6f} --> {val_loss:.6f}).  Saving model ...')
