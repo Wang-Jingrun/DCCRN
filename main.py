@@ -1,6 +1,7 @@
 import argparse
 import yaml
 
+from utils import *
 from trainer import *
 
 
@@ -32,6 +33,7 @@ def main():
     args = parameter_parser()
     train_config = load_config(args.train_config_path)
     trainer = Trainer(train_config)
+    print(f"Total parameters:{calculate_total_params(trainer.model)}")
     if train_config['load_path']:
         trainer.load()
         trainer.train()

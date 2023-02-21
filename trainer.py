@@ -65,7 +65,7 @@ class Trainer(object):
         self.model.eval()
         test_ep_loss = 0.
         counter = 0.
-        for noisy_x, clean_x in self.train_loader:
+        for noisy_x, clean_x in self.test_loader:
             # get the output from the model
             noisy_x, clean_x = noisy_x.to(self.device), clean_x.to(self.device)
             pred_x = self.model(noisy_x)
