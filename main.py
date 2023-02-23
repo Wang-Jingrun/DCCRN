@@ -34,12 +34,11 @@ def main():
     train_config = load_config(args.train_config_path)
     trainer = Trainer(train_config)
     print(f"Total parameters:{calculate_total_params(trainer.model)}")
-    if train_config['load_path']:
+    if train_config['load_model']:
         trainer.load()
-        trainer.train()
     else:
         trainer.train()
-    trainer.pesq_score()
+    trainer.eval()
 
 
 if __name__ == "__main__":

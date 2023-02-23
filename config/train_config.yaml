@@ -1,8 +1,12 @@
 device: cuda:0
 
 train:
-  batch_size: 15
+  batch_size: 16
   epochs: 1000
+
+model:
+  rnn_hidden: 256
+  kernel_num: (32, 64, 128, 256, 256, 256)
 
 # optim
 optimizer: Adam
@@ -15,9 +19,15 @@ scheduler:
   patience: 3
   verbose: y
 
-# path
-save_path: ./output
-load_path: ./output/model_state_SNR=0-PESQ=2.76.pth
+# model path
+model_path: ./output
+load_model:
+
+# data path
 dataset_path: D:\PycharmProjects\DATASETS
 train_files: LibriSpeech-Noisy.txt
 test_files: LibriSpeech-Noisy-test-snr=0.txt
+eval_files:
+  0: LibriSpeech-Noisy-test-snr=0.txt
+  1: LibriSpeech-Noisy-test-snr=5.txt
+  2: LibriSpeech-Noisy-test-snr=10.txt

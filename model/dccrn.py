@@ -5,7 +5,7 @@ class DCCRN(nn.Module):
     def __init__(self,
                  rnn_layer=2, rnn_hidden=256,
                  win_len=400, hop_len=100, fft_len=512, win_type='hamming',
-                 use_clstm=True, use_cbn=False, masking_mode='E',
+                 use_clstm=True, use_cbn=True, masking_mode='E',
                  kernel_size=5, kernel_num=(32, 64, 128, 256, 256, 256)
                  ):
         super(DCCRN, self).__init__()

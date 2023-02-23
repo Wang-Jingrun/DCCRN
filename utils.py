@@ -51,7 +51,7 @@ def calculate_total_params(our_model):
 
 
 class EarlyStopping:
-    def __init__(self,patience=7, verbose=False, delta=0):
+    def __init__(self,patience=10, verbose=False, delta=0):
         self.patience = patience
         self.verbose = verbose
         self.counter = 0
@@ -83,3 +83,10 @@ class EarlyStopping:
                 f'Validation loss decreased ({self.val_loss_min:.6f} --> {val_loss:.6f}).  Saving model ...')
         torch.save(model.state_dict(), path+'/'+'model_checkpoint.pth')
         self.val_loss_min = val_loss
+
+
+def tuple_data(data):
+    """
+    将yaml读取到的字符数据转换成元组
+    """
+    return eval(repr(data).replace('\'', ''))

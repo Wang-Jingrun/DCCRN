@@ -1,15 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
-
-
-def get_casual_padding1d():
-    pass
-
-
-def get_casual_padding2d():
-    pass
 
 
 class cPReLU(nn.Module):
