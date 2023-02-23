@@ -120,8 +120,7 @@ class Trainer(object):
                   "Test Loss: {:.6f}...".format(test_loss),
                   "time: {:.1f}min".format((end - start) / 60))
 
-            if self.conf['save_path']:
-                self.save(e + 1)
+            self.save(e + 1)
 
             self.early_stop(test_loss)
             if self.early_stop.early_stop:
