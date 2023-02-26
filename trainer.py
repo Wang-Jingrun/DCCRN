@@ -30,7 +30,7 @@ class Trainer(object):
             patience=self.conf['scheduler']['patience'], verbose=self.conf['scheduler']['verbose']
         )
 
-        self.early_stop = EarlyStopping()
+        self.early_stop = EarlyStopping(verbose=True)
 
 
     def init_dataloader(self):
@@ -120,9 +120,8 @@ class Trainer(object):
                   "Test Loss: {:.6f}...".format(test_loss),
                   "time: {:.1f}min".format((end - start) / 60))
 
-            self.save(e + 1)
-
-            self.early_stop(test_loss)
+            self.save('model_state_last.pth')
+            self.early_stop(test_loss, self.model, self.conf['model_path'])
             if self.early_stop.early_stop:
                 print("Early stopping!")
                 break
@@ -170,9 +169,9 @@ class Trainer(object):
         end = time.time()
         print("time: {:.1f}min".format((end - start) / 60))
 
-    def save(self, epoch):
+    def save(self, pth_name='model_state.pth'):
         os.makedirs(self.conf['model_path'], exist_ok=True)
-        torch.save(self.model.state_dict(), os.path.join(self.conf['model_path'], f"model_state_{epoch}.pth"))
+        torch.save(self.model.state_dict(), os.path.join(self.conf['model_path'], pth_name))
 
     def load(self):
         self.model.load_state_dict(torch.load(os.path.join(self.conf['model_path'], self.conf['load_model'])))
