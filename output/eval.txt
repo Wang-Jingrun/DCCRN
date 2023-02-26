@@ -1,0 +1,12 @@
+nohup: ignoring input
+Total parameters:3671917
+
+
+Model evaluation.
+
+Value of PESQ in eval0: 2.769048
+Value of Si-SNR in eval0: -12.360340
+Value of PESQ in eval1: 3.149028
+Value of Si-SNR in eval1: -15.816965
+Value of PESQ in eval2: 3.437742
+Value of Si-SNR in eval2: -19.081564
