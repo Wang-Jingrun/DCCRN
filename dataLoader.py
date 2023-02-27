@@ -38,7 +38,7 @@ class SpeechDataset(Dataset):
             clean = np.pad(clean, (0, shortage), 'constant')  # 用0填充
             wav_len = self.max_len
 
-        # start = np.int64(random.random() * (wav_len - self.max_len))
-        start = 0
+        # start = 0
+        start = random.randint(0, (wav_len - self.max_len))
         return noisy[start: start + self.max_len], clean[start: start + self.max_len]
 
