@@ -11,40 +11,43 @@ warnings.filterwarnings("ignore")
 
 
 class Trainer(object):
-    def __init__(self, conf):
-        self.conf = conf
-        self.device = torch.device(conf['device'])
+    def __init__(self, config):
+        self.config = config
+        self.device = torch.device(config['device'])
 
         self.init_dataloader()
         self.model = DCCRN(
-            rnn_hidden=self.conf['model']['rnn_hidden'], kernel_num=tuple_data(self.conf['model']['kernel_num'])
+            rnn_hidden=self.config['model']['rnn_hidden'], kernel_num=tuple_data(self.config['model']['kernel_num'])
             ).to(self.device)
         self.loss_fn = loss
 
-        optimizer = getattr(sys.modules['torch.optim'], self.conf['optimizer'])
-        self.optimizer = optimizer(self.model.parameters(), lr=self.conf['learning_rate'])
+        optimizer = getattr(sys.modules['torch.optim'], self.config['optimizer'])
+        self.optimizer = optimizer(self.model.parameters(), lr=self.config['learning_rate'])
 
         # 训练策略
         self.scheduler = ReduceLROnPlateau(
-            optimizer=self.optimizer, factor=self.conf['scheduler']['factor'],
-            patience=self.conf['scheduler']['patience'], verbose=self.conf['scheduler']['verbose']
+            optimizer=self.optimizer, factor=self.config['scheduler']['factor'],
+            patience=self.config['scheduler']['patience'], verbose=self.config['scheduler']['verbose']
         )
 
         self.early_stop = EarlyStopping(verbose=True)
 
 
     def init_dataloader(self):
-        train_dataset = SpeechDataset(os.path.join(self.conf['dataset_path'], self.conf['train_files']))
-        self.train_loader = DataLoader(train_dataset, batch_size=self.conf['train']['batch_size'], shuffle=True)
+        train_dataset = SpeechDataset(os.path.join(self.config['dataset_path'], self.config['train_files']))
+        self.train_loader = DataLoader(train_dataset, batch_size=self.config['train']['batch_size'],
+                                       num_workers=self.config['train']['num_workers'], shuffle=True)
 
-        test_dataset = SpeechDataset(os.path.join(self.conf['dataset_path'], self.conf['test_files']))
-        self.test_loader = DataLoader(test_dataset, batch_size=self.conf['train']['batch_size'], shuffle=True)
+        test_dataset = SpeechDataset(os.path.join(self.config['dataset_path'], self.config['test_files']))
+        self.test_loader = DataLoader(test_dataset, batch_size=self.config['train']['batch_size'],
+                                      num_workers=self.config['train']['num_workers'], shuffle=True)
 
-        num_loaders = self.conf['eval_files']
+        num_loaders = self.config['eval_files']
         self.eval_loaders = []
         for i in num_loaders:
-            eval_dataset = SpeechDataset(os.path.join(self.conf['dataset_path'], self.conf['eval_files'][i]))
-            eval_loader = DataLoader(eval_dataset, batch_size=self.conf['train']['batch_size'], shuffle=True)
+            eval_dataset = SpeechDataset(os.path.join(self.config['dataset_path'], self.config['eval_files'][i]))
+            eval_loader = DataLoader(eval_dataset, batch_size=self.config['train']['batch_size'],
+                                     num_workers=self.config['train']['num_workers'], shuffle=True)
             self.eval_loaders.append(eval_loader)
 
     def train_epoch(self, loader):
@@ -94,7 +97,7 @@ class Trainer(object):
         self.train_losses = []
         self.test_losses = []
 
-        for e in range(self.conf['train']['epochs']):
+        for e in range(self.config['train']['epochs']):
             start = time.time()
             # first evaluating for comparison
             if e == 0:
@@ -115,13 +118,13 @@ class Trainer(object):
 
             end = time.time()
 
-            print("Epoch: {}/{}...".format(e + 1, self.conf['train']['epochs']),
+            print("Epoch: {}/{}...".format(e + 1, self.config['train']['epochs']),
                   "Loss: {:.6f}...".format(train_loss),
                   "Test Loss: {:.6f}...".format(test_loss),
                   "time: {:.1f}min".format((end - start) / 60))
 
             self.save('model_state_last.pth')
-            self.early_stop(test_loss, self.model, self.conf['model_path'])
+            self.early_stop(test_loss, self.model, self.config['model_path'])
             if self.early_stop.early_stop:
                 print("Early stopping!")
                 break
@@ -170,8 +173,8 @@ class Trainer(object):
         print("time: {:.1f}min".format((end - start) / 60))
 
     def save(self, pth_name='model_state.pth'):
-        os.makedirs(self.conf['model_path'], exist_ok=True)
-        torch.save(self.model.state_dict(), os.path.join(self.conf['model_path'], pth_name))
+        os.makedirs(self.config['model_path'], exist_ok=True)
+        torch.save(self.model.state_dict(), os.path.join(self.config['model_path'], pth_name))
 
     def load(self):
-        self.model.load_state_dict(torch.load(os.path.join(self.conf['model_path'], self.conf['load_model'])))
+        self.model.load_state_dict(torch.load(os.path.join(self.config['model_path'], self.config['load_model'])))

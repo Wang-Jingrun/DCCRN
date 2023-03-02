@@ -15,11 +15,11 @@ def parameter_parser():
     """
     A method to parse up command line parameters.
     """
-    parser = argparse.ArgumentParser(description="Run DCUNet.")
+    parser = argparse.ArgumentParser(description="Run.")
 
-    parser.add_argument("--train_config_path",
+    parser.add_argument("--config_path",
                         type=str,
-                        default='./config/train_config.yaml',
+                        default='config.yaml',
                         help="Config path of trainer.")
 
     return parser.parse_args()
@@ -31,14 +31,14 @@ def main():
     Fitting and scoring a G-UNet model.
     """
     args = parameter_parser()
-    train_config = load_config(args.train_config_path)
-    trainer = Trainer(train_config)
+    config = load_config(args.train_config_path)
+    trainer = Trainer(config)
     print(f"Total parameters:{calculate_total_params(trainer.model)}")
-    if train_config['load_model']:
+    if config['load_model']:
         trainer.load()
+        trainer.eval()
     else:
         trainer.train()
-    trainer.eval()
 
 
 if __name__ == "__main__":

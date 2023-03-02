@@ -3,6 +3,7 @@ device: cuda:0
 train:
   batch_size: 16
   epochs: 1000
+  num_workers: 4
 
 model:
   rnn_hidden: 256
