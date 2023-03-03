@@ -31,7 +31,7 @@ def main():
     Fitting and scoring a G-UNet model.
     """
     args = parameter_parser()
-    config = load_config(args.train_config_path)
+    config = load_config(args.config_path)
     trainer = Trainer(config)
     print(f"Total parameters:{calculate_total_params(trainer.model)}")
     if config['load_model']:
