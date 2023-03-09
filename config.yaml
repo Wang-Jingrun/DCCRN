@@ -23,7 +23,7 @@ scheduler:
 
 # model path
 model_path: ./output
-load_model:
+load_model: best.pth
 
 # data path
 dataset_path: D:\PycharmProjects\DATASETS
