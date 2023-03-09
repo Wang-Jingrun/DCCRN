@@ -26,14 +26,15 @@ def parameter_parser():
 
 
 def main():
-    """
-    Parsing command line parameters, reading data.
-    Fitting and scoring a G-UNet model.
-    """
     args = parameter_parser()
     config = load_config(args.config_path)
+
+    # 使程序只能使用指定显卡
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(config['gpu_num'])
+
     trainer = Trainer(config)
     print(f"Total parameters:{calculate_total_params(trainer.model)}")
+
     if config['load_model']:
         trainer.load()
         trainer.eval()

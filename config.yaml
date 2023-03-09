@@ -1,4 +1,5 @@
-device: cuda:0
+gpu_num: 0 # 在指定编号的gpu上训练
+device: cuda # 此项不用修改
 
 train:
   batch_size: 16
