@@ -20,10 +20,15 @@ class SpeechDataset(Dataset):
         #读取含噪语音
         noisy_wav, _ = soundfile.read(self.noisy_files[index], dtype='int16')
         noisy_wav = noisy_wav.astype('float32')
+        alpha_pow = 1 / ((np.sqrt(np.sum(noisy_wav ** 2)) / ((noisy_wav.size) + 1e-7)) + 1e-7)
+        noisy_wav = noisy_wav * alpha_pow
 
         # 读取干净语音
         clean_wav, _ = soundfile.read(self.clean_files[index], dtype='int16')
         clean_wav = clean_wav.astype('float32')
+        alpha_pow = 1 / ((np.sqrt(np.sum(clean_wav ** 2)) / ((clean_wav.size) + 1e-7)) + 1e-7)
+        clean_wav = clean_wav * alpha_pow
+
 
         # 裁剪语音至相同长度
         noisy_wav, clean_wav = self.cut(noisy_wav, clean_wav)
@@ -42,3 +47,28 @@ class SpeechDataset(Dataset):
         start = random.randint(0, (wav_len - self.max_len))
         return noisy[start: start + self.max_len], clean[start: start + self.max_len]
 
+
+class EvalDataset(Dataset):
+    def __init__(self, data_paths):
+        super(EvalDataset, self).__init__()
+        datas = np.loadtxt(data_paths, dtype='str')
+        self.clean_files = datas[:, 1].tolist()
+        self.noisy_files = datas[:, 0].tolist()
+
+    def __len__(self):
+        return len(self.noisy_files)
+
+    def __getitem__(self, index):
+        #读取含噪语音
+        noisy_wav, _ = soundfile.read(self.noisy_files[index], dtype='int16')
+        noisy_wav = noisy_wav.astype('float32')
+        alpha_pow = 1 / ((np.sqrt(np.sum(noisy_wav ** 2)) / ((noisy_wav.size) + 1e-7)) + 1e-7)
+        noisy_wav = noisy_wav * alpha_pow
+
+        # 读取干净语音
+        clean_wav, _ = soundfile.read(self.clean_files[index], dtype='int16')
+        clean_wav = clean_wav.astype('float32')
+        alpha_pow = 1 / ((np.sqrt(np.sum(clean_wav ** 2)) / ((clean_wav.size) + 1e-7)) + 1e-7)
+        clean_wav = clean_wav * alpha_pow
+
+        return torch.from_numpy(noisy_wav), torch.from_numpy(clean_wav)

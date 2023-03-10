@@ -45,9 +45,8 @@ class Trainer(object):
         num_loaders = self.config['eval_files']
         self.eval_loaders = []
         for i in num_loaders:
-            eval_dataset = SpeechDataset(os.path.join(self.config['dataset_path'], self.config['eval_files'][i]))
-            eval_loader = DataLoader(eval_dataset, batch_size=self.config['train']['batch_size'],
-                                     num_workers=self.config['train']['num_workers'], shuffle=True)
+            eval_dataset = EvalDataset(os.path.join(self.config['dataset_path'], self.config['eval_files'][i]))
+            eval_loader = DataLoader(eval_dataset, batch_size=1, num_workers=self.config['train']['num_workers'], shuffle=True)
             self.eval_loaders.append(eval_loader)
 
     def train_epoch(self, loader):
