@@ -4,7 +4,10 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from model.dccrn import *
 from dataLoader import *
-from utils import *
+
+from utils.early_stopping import *
+from utils.loss import *
+from utils.utils import *
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -34,26 +37,41 @@ class Trainer(object):
 
 
     def init_dataloader(self):
-        train_dataset = SpeechDataset(os.path.join(self.config['dataset_path'], self.config['train_files']))
+        # 初始化训练集和验证集
+        dataset_config = self.config['train_dataset']
+        train_dataset = SpeechDataset(
+            self.config['dataset_path'],
+            os.path.join(dataset_config['path'], dataset_config['train_clean_files']),
+            os.path.join(dataset_config['path'], dataset_config['noise_files']),
+            os.path.join(dataset_config['path'], dataset_config['rir_files']),
+            wav_dur=dataset_config['wav_dur'], is_train=True
+        )
         self.train_loader = DataLoader(train_dataset, batch_size=self.config['train']['batch_size'],
                                        num_workers=self.config['train']['num_workers'], shuffle=True)
 
-        test_dataset = SpeechDataset(os.path.join(self.config['dataset_path'], self.config['test_files']))
-        self.test_loader = DataLoader(test_dataset, batch_size=self.config['train']['batch_size'],
+        validate_dataset = SpeechDataset(
+            self.config['dataset_path'],
+            os.path.join(dataset_config['path'], dataset_config['train_clean_files']),
+            os.path.join(dataset_config['path'], dataset_config['noise_files']),
+            os.path.join(dataset_config['path'], dataset_config['rir_files']),
+            wav_dur=dataset_config['wav_dur'], is_train=False
+        )
+        self.validate_loader = DataLoader(validate_dataset, batch_size=self.config['train']['batch_size'],
                                       num_workers=self.config['train']['num_workers'], shuffle=True)
 
-        num_loaders = self.config['eval_files']
+        # 初始化测试集
+        num_loaders = len(self.config['test_dataset']) - 1
         self.eval_loaders = []
-        for i in num_loaders:
-            eval_dataset = EvalDataset(os.path.join(self.config['dataset_path'], self.config['eval_files'][i]))
+        for i in range(num_loaders):
+            eval_dataset = EvalDataset(os.path.join(self.config['test_dataset']['path'], self.config['test_dataset'][i]))
             eval_loader = DataLoader(eval_dataset, batch_size=1, num_workers=self.config['train']['num_workers'], shuffle=True)
             self.eval_loaders.append(eval_loader)
 
-    def train_epoch(self, loader):
+    def train_epoch(self):
         self.model.train()
         train_ep_loss = 0.
         counter = 0
-        for noisy_x, clean_x in loader:
+        for noisy_x, clean_x in self.train_loader:
             noisy_x, clean_x = noisy_x.to(self.device), clean_x.to(self.device)
 
             # zero  gradients
@@ -70,24 +88,27 @@ class Trainer(object):
             train_ep_loss += loss.item()
             counter += 1
 
+        clear_cache()
         return train_ep_loss / counter
 
     def test_epoch(self, loader):
         self.model.eval()
-        test_ep_loss = 0.
+        val_ep_loss = 0.
         counter = 0.
         for noisy_x, clean_x in loader:
-            # get the output from the model
             noisy_x, clean_x = noisy_x.to(self.device), clean_x.to(self.device)
+
+            # get the output from the model
             pred_x = self.model(noisy_x)
 
             # calculate loss
             val_loss = self.loss_fn(pred_x, clean_x)
 
-            test_ep_loss += val_loss.item()
+            val_ep_loss += val_loss.item()
             counter += 1
 
-        return test_ep_loss / counter
+        clear_cache()
+        return val_ep_loss / counter
 
     def train(self):
         """
@@ -98,18 +119,10 @@ class Trainer(object):
 
         for e in range(self.config['train']['epochs']):
             start = time.time()
-            # first evaluating for comparison
-            if e == 0:
-                with torch.no_grad():
-                    test_loss = self.test_epoch(self.test_loader)
 
-                self.test_losses.append(test_loss)
-                print("Loss before training:{:.6f}".format(test_loss))
-
-            train_loss = self.train_epoch(self.train_loader)
-            # self.scheduler.step()  # update lr
+            train_loss = self.train_epoch()
             with torch.no_grad():
-                test_loss = self.test_epoch(self.test_loader)
+                test_loss = self.test_epoch(self.validate_loader)
 
             self.scheduler.step(test_loss)
             self.train_losses.append(train_loss)
@@ -128,52 +141,50 @@ class Trainer(object):
                 print("Early stopping!")
                 break
 
-    def pesq_score(self, loader, save_sample=False):
+    def eval(self, save_sample=False):
         self.model.eval()
-        test_pesq = 0.
-        counter = 0.
-
-        for noisy_x, clean_x in loader:
-            # get the output from the model
-            noisy_x = noisy_x.to(self.device)
-            with torch.no_grad():
-                pred_x = self.model(noisy_x)
-
-            psq = 0.
-            pred_x = pred_x.detach().cpu().numpy()
-            for i in range(len(clean_x)):
-                psq += pesq(clean_x[i], pred_x[i], 16000)
-
-            psq /= len(clean_x)
-            test_pesq += psq
-            counter += 1
-
-        if save_sample:
-            soundfile.write(f'noisy{counter}.wav', noisy_x[0].cpu().detach().numpy().astype('int16'), 16000)
-            soundfile.write(f'clean{counter}.wav', clean_x[0].cpu().numpy().astype('int16'), 16000)
-            soundfile.write(f'enhance{counter}.wav', pred_x[0].astype('int16'), 16000)
-
-        return test_pesq / counter
-
-    def eval(self):
         print("\n\nModel evaluation.\n")
-        start = time.time()
 
-        counter = 0
-        for loader in self.eval_loaders:
-            pesq = self.pesq_score(loader)
-            print("Value of PESQ in eval{}: {:.6f}".format(counter, pesq))
-            si_snr = 0 - self.test_epoch(loader)
-            print("Value of Si-SNR in eval{}: {:.6f}".format(counter, si_snr))
-            counter += 1
-            print()
+        for index, loader in enumerate(self.eval_loaders):
+            pesq_total, si_snr_total, counter = 0., 0., 0.
 
-        end = time.time()
-        print("time: {:.1f}min".format((end - start) / 60))
+            start = time.time()
+            for noisy_x, clean_x in loader:
+                noisy_x, clean_x = noisy_x.to(self.device), clean_x.to(self.device)
+                with torch.no_grad():
+                    pred_x = self.model(noisy_x)
+
+                # 计算si_snr
+                si_snr_ = si_snr(pred_x, clean_x)
+                si_snr_total += si_snr_.item()
+
+                pred_x = pred_x.detach().cpu().numpy()
+                clean_x = clean_x.detach().cpu().numpy()
+
+                # 计算pesq
+                psq = 0.
+                for i in range(len(clean_x)):
+                    psq += pesq(clean_x[i], pred_x[i], 16000)
+                psq /= len(clean_x)
+                pesq_total += psq
+
+                counter += 1
+
+            end = time.time()
+            clear_cache()
+            print("Dataset[{}]...".format(index),
+                  "Si-SNR: {:.6f}...".format(si_snr_total / counter),
+                  "PESQ: {:.6f}...".format(pesq_total / counter),
+                  "time: {:.1f}min".format((end - start) / 60))
+
+            if save_sample:
+                soundfile.write(f'./output/noisy{counter}_testset{index}.wav', noisy_x[0].cpu().detach().numpy().astype('int16'), 16000)
+                soundfile.write(f'./output/clean{counter}_testset{index}.wav', clean_x[0].astype('int16'), 16000)
+                soundfile.write(f'./output/enhance{counter}_testset{index}.wav', pred_x[0].astype('int16'), 16000)
 
     def save(self, pth_name='model_state.pth'):
         os.makedirs(self.config['model_path'], exist_ok=True)
         torch.save(self.model.state_dict(), os.path.join(self.config['model_path'], pth_name))
 
-    def load(self):
-        self.model.load_state_dict(torch.load(os.path.join(self.config['model_path'], self.config['load_model'])))
+    def load(self, model_state):
+        self.model.load_state_dict(torch.load(os.path.join(self.config['model_path'], model_state)))

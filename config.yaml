@@ -2,9 +2,9 @@ gpu_num: 0 # 在指定编号的gpu上训练
 device: cuda # 此项不用修改
 
 train:
-  batch_size: 16
+  batch_size: 4
   epochs: 1000
-  num_workers: 4
+  num_workers: 1
 
 model:
   rnn_hidden: 256
@@ -23,13 +23,23 @@ scheduler:
 
 # model path
 model_path: ./output
-load_model: best.pth
+load_model:
 
-# data path
+# dataset
 dataset_path: D:\PycharmProjects\DATASETS
-train_files: LibriSpeech-Noisy.txt
-test_files: LibriSpeech-Noisy-test-snr=0.txt
-eval_files:
-  0: LibriSpeech-Noisy-test-snr=0.txt
-  1: LibriSpeech-Noisy-test-snr=5.txt
-  2: LibriSpeech-Noisy-test-snr=10.txt
+
+train_dataset:
+  path: D:\PycharmProjects\DATASETS
+  train_clean_files: train-clean-100.txt
+  noise_files: train-noise.txt
+  rir_files: RIRS-train.txt
+  wav_dur: 3
+
+test_dataset:
+  path: D:\PycharmProjects\DATASETS
+  0: RIR-test-snr=0.txt
+  1: RIR-test-snr=5.txt
+  2: RIR-test-snr=10.txt
+  3: noRIR-test-snr=0.txt
+  4: noRIR-test-snr=5.txt
+  5: noRIR-test-snr=10.txt

@@ -1,8 +1,8 @@
 import argparse
 import yaml
 
-from utils import *
 from trainer import *
+from utils.utils import *
 
 
 def load_config(config_path):
@@ -26,6 +26,10 @@ def parameter_parser():
 
 
 def main():
+    """
+    Parsing command line parameters, reading data.
+    Fitting and scoring a G-UNet model.
+    """
     args = parameter_parser()
     config = load_config(args.config_path)
 
@@ -36,11 +40,12 @@ def main():
     print(f"Total parameters:{calculate_total_params(trainer.model)}")
 
     if config['load_model']:
-        trainer.load()
-        trainer.eval()
+        trainer.load(config['load_model'])
     else:
         trainer.train()
+        trainer.load('model_state_best.pth')
 
+    trainer.eval(save_sample=True)
 
 if __name__ == "__main__":
     main()
