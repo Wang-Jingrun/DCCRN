@@ -2,9 +2,9 @@ gpu_num: 0 # 在指定编号的gpu上训练
 device: cuda # 此项不用修改
 
 train:
-  batch_size: 4
+  batch_size: 16
   epochs: 1000
-  num_workers: 1
+  num_workers: 4
 
 model:
   rnn_hidden: 256
