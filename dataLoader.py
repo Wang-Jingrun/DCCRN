@@ -39,12 +39,12 @@ class SpeechDataset(Dataset):
         # soundfile.write(f'./output/CLEAN.wav', clean_wav.astype('int16'), 16000)
 
         # 加混响
-        rir_wav = self.add_rir(clean_wav)
+        # rir_wav = self.add_rir(clean_wav)
         # plot_stft_spec(rir_wav, 16000, n_fft=512, win_l=400, hop_l=200, picname='./output/stft-rir')
         # soundfile.write(f'./output/RIR.wav', rir_wav.astype('int16'), 16000)
 
         # 加噪声
-        noisy_wav = self.add_noise(rir_wav)
+        noisy_wav = self.add_noise(clean_wav)
         # plot_stft_spec(noisy_wav, 16000, n_fft=512, win_l=400, hop_l=200, picname='./output/stft-noisy')
         # soundfile.write(f'./output/NOISY.wav', noisy_wav.astype('int16'), 16000)
         return torch.from_numpy(noisy_wav).type(torch.FloatTensor), \
