@@ -38,32 +38,22 @@ class Trainer(object):
 
     def init_dataloader(self):
         # 初始化训练集和验证集
-        dataset_config = self.config['train_dataset']
-        train_dataset = SpeechDataset(
-            self.config['dataset_path'],
-            os.path.join(dataset_config['path'], dataset_config['train_clean_files']),
-            os.path.join(dataset_config['path'], dataset_config['noise_files']),
-            os.path.join(dataset_config['path'], dataset_config['rir_files']),
-            wav_dur=dataset_config['wav_dur'], is_train=True
-        )
+        dataset_config = self.config['dataset']
+        train_dataset = TrainSpeechDataset(dataset_config['path'], dataset_config['train_clean_files'],
+                                           dataset_config['train_noise_files'], wav_dur=dataset_config['wav_dur'])
         self.train_loader = DataLoader(train_dataset, batch_size=self.config['train']['batch_size'],
                                        num_workers=self.config['train']['num_workers'], shuffle=True)
 
-        validate_dataset = SpeechDataset(
-            self.config['dataset_path'],
-            os.path.join(dataset_config['path'], dataset_config['train_clean_files']),
-            os.path.join(dataset_config['path'], dataset_config['noise_files']),
-            os.path.join(dataset_config['path'], dataset_config['rir_files']),
-            wav_dur=dataset_config['wav_dur'], is_train=False
-        )
+        validate_dataset = ValSpeechDataset(dataset_config['path'], dataset_config['validate_files'],
+                                            wav_dur=dataset_config['wav_dur'])
         self.validate_loader = DataLoader(validate_dataset, batch_size=self.config['train']['batch_size'],
-                                      num_workers=self.config['train']['num_workers'], shuffle=True)
+                                          num_workers=self.config['train']['num_workers'], shuffle=True)
 
         # 初始化测试集
-        num_loaders = len(self.config['test_dataset']) - 1
+        snrs = tuple_data(dataset_config['test_snrs'])
         self.eval_loaders = []
-        for i in range(num_loaders):
-            eval_dataset = EvalDataset(os.path.join(self.config['test_dataset']['path'], self.config['test_dataset'][i]))
+        for snr in snrs:
+            eval_dataset = EvalSpeechDataset(dataset_config['path'], dataset_config['test_files'], snr)
             eval_loader = DataLoader(eval_dataset, batch_size=1, num_workers=self.config['train']['num_workers'], shuffle=True)
             self.eval_loaders.append(eval_loader)
 
@@ -91,11 +81,11 @@ class Trainer(object):
         clear_cache()
         return train_ep_loss / counter
 
-    def test_epoch(self, loader):
+    def test_epoch(self):
         self.model.eval()
         val_ep_loss = 0.
         counter = 0.
-        for noisy_x, clean_x in loader:
+        for noisy_x, clean_x in self.validate_loader:
             noisy_x, clean_x = noisy_x.to(self.device), clean_x.to(self.device)
 
             # get the output from the model
@@ -122,7 +112,7 @@ class Trainer(object):
 
             train_loss = self.train_epoch()
             with torch.no_grad():
-                test_loss = self.test_epoch(self.validate_loader)
+                test_loss = self.test_epoch()
 
             self.scheduler.step(test_loss)
             self.train_losses.append(train_loss)

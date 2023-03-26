@@ -26,20 +26,11 @@ model_path: ./output
 load_model:
 
 # dataset
-dataset_path: D:\PycharmProjects\DATASETS
-
-train_dataset:
-  path: D:\PycharmProjects\DATASETS
-  train_clean_files: train-clean-100.txt
-  noise_files: train-noise.txt
-  rir_files: RIRS-train.txt
+dataset:
+  path: E:\Datasets\deep_xi_dataset
+  train_clean_files: train_clean_speech.txt
+  train_noise_files: train_noise.txt
+  validate_files: val_clean_speech.txt
+  test_files: test_clean_speech.txt
+  test_snrs: (-5, 0, 5, 10, 15)
   wav_dur: 3
-
-test_dataset:
-  path: D:\PycharmProjects\DATASETS
-  0: RIR-test-snr=0.txt
-  1: RIR-test-snr=5.txt
-  2: RIR-test-snr=10.txt
-  3: noRIR-test-snr=0.txt
-  4: noRIR-test-snr=5.txt
-  5: noRIR-test-snr=10.txt
