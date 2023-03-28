@@ -124,5 +124,5 @@ class EvalSpeechDataset(Dataset):
         clean_wav = load_wav(os.path.join(self.dataset_path, 'test_clean_speech'),
                              self.test_files[index] + '.wav')
         noisy_wav = load_wav(os.path.join(self.dataset_path, 'test_noisy_speech'),
-                             self.test_files[index] + f'_{self.snr}db.wav')
+                             self.test_files[index] + f'_{self.snr}dB.wav')
         return torch.from_numpy(noisy_wav), torch.from_numpy(clean_wav)
