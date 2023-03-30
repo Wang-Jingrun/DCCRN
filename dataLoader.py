@@ -28,9 +28,65 @@ def add_noise(wav, noise, snr):
     return wav + add_nosie
 
 
-class TrainSpeechDataset(Dataset):
+class VCTKTrain(Dataset):
+    def __init__(self, dataset_path, train_files, wav_dur=3, is_trian=True):
+        super(VCTKTrain, self).__init__()
+        train_files = np.loadtxt(os.path.join(dataset_path, train_files), dtype='str').tolist()
+        if is_trian:
+            self.train_files = train_files[:10700]
+        else:
+            self.train_files = train_files[10700:]
+
+        self.dataset_path = dataset_path
+        self.max_len = wav_dur * 16000
+
+    def __len__(self):
+        return len(self.train_files)
+
+    def __getitem__(self, index):
+        # 读取干净语音
+        clean_wav = load_wav(os.path.join(self.dataset_path, 'clean_trainset_28spk_wav'),
+                             self.train_files[index] + '.wav')
+        noisy_wav = load_wav(os.path.join(self.dataset_path, 'noisy_trainset_28spk_wav'),
+                             self.train_files[index] + '.wav')
+
+        # 裁剪至固定长度
+        clean_wav, noisy_wav = self.cut(clean_wav, noisy_wav)
+        # soundfile.write(f'./output/CLEAN.wav', clean_wav.astype('int16'), 16000)
+        # soundfile.write(f'./output/NOISY.wav', noisy_wav.astype('int16'), 16000)
+        return torch.from_numpy(noisy_wav), torch.from_numpy(clean_wav)
+
+    def cut(self, clean_wav, noisy_wav):
+        # 用0填充，保持每个batch中的长度一致
+        if clean_wav.shape[0] <= self.max_len:
+            shortage = self.max_len - clean_wav.shape[0]
+            clean_wav = np.pad(clean_wav, (0, shortage), 'constant')  # 用0填充
+            noisy_wav = np.pad(noisy_wav, (0, shortage), 'constant')  # 用0填充
+
+        start = np.int64(random.random() * (clean_wav.shape[0] - self.max_len))
+        return clean_wav[start: start + self.max_len], noisy_wav[start: start + self.max_len]
+
+
+class VCTKEval(Dataset):
+    def __init__(self, dataset_path, test_files):
+        super(VCTKEval, self).__init__()
+        self.test_files = np.loadtxt(os.path.join(dataset_path, test_files), dtype='str')
+        self.dataset_path = dataset_path
+
+    def __len__(self):
+        return len(self.test_files)
+
+    def __getitem__(self, index):
+        clean_wav = load_wav(os.path.join(self.dataset_path, 'clean_testset_wav'),
+                             self.test_files[index] + '.wav')
+        noisy_wav = load_wav(os.path.join(self.dataset_path, 'noisy_testset_wav'),
+                             self.test_files[index] + '.wav')
+        return torch.from_numpy(noisy_wav), torch.from_numpy(clean_wav)
+
+
+class DeepXiTrain(Dataset):
     def __init__(self, dataset_path, clean_files, noise_files, wav_dur=3):
-        super(TrainSpeechDataset, self).__init__()
+        super(DeepXiTrain, self).__init__()
         self.clean_files = np.loadtxt(os.path.join(dataset_path, clean_files), dtype='str').tolist()
         self.noise_files = np.loadtxt(os.path.join(dataset_path, noise_files), dtype='str').tolist()
         self.dataset_path = dataset_path
@@ -76,9 +132,9 @@ class TrainSpeechDataset(Dataset):
     #     return out_wav[:wav.shape[0]]
 
 
-class ValSpeechDataset(Dataset):
+class DeepXiVal(Dataset):
     def __init__(self, dataset_path, val_files, wav_dur=3):
-        super(ValSpeechDataset, self).__init__()
+        super(DeepXiVal, self).__init__()
         self.val_files = np.loadtxt(os.path.join(dataset_path, val_files), dtype='str').tolist()
         self.dataset_path = dataset_path
         self.max_len = wav_dur * 16000
@@ -110,9 +166,9 @@ class ValSpeechDataset(Dataset):
         return wav[start: start + self.max_len]
 
 
-class EvalSpeechDataset(Dataset):
+class DeepXiEval(Dataset):
     def __init__(self, dataset_path, test_files, snr):
-        super(EvalSpeechDataset, self).__init__()
+        super(DeepXiEval, self).__init__()
         self.test_files = np.loadtxt(os.path.join(dataset_path, test_files), dtype='str')
         self.dataset_path = dataset_path
         self.snr = snr

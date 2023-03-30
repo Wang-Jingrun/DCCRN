@@ -1,5 +1,6 @@
 import os, sys, time
-from pypesq import pesq
+# from pypesq import pesq
+from pesq import pesq
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from model.dccrn import *
@@ -35,27 +36,42 @@ class Trainer(object):
 
         self.early_stop = EarlyStopping(verbose=True)
 
-
     def init_dataloader(self):
-        # 初始化训练集和验证集
-        dataset_config = self.config['dataset']
-        train_dataset = TrainSpeechDataset(dataset_config['path'], dataset_config['train_clean_files'],
-                                           dataset_config['train_noise_files'], wav_dur=dataset_config['wav_dur'])
-        self.train_loader = DataLoader(train_dataset, batch_size=self.config['train']['batch_size'],
-                                       num_workers=self.config['train']['num_workers'], shuffle=True)
+        if self.config['VCTK_dataset']:
+            dataset_config = self.config['VCTK_dataset']
+            train_dataset = VCTKTrain(dataset_config['path'], dataset_config['trainset'],
+                                      wav_dur=dataset_config['wav_dur'], is_trian=True)
+            self.train_loader = DataLoader(train_dataset, batch_size=self.config['train']['batch_size'],
+                                           num_workers=self.config['train']['num_workers'], shuffle=True)
 
-        validate_dataset = ValSpeechDataset(dataset_config['path'], dataset_config['validate_files'],
-                                            wav_dur=dataset_config['wav_dur'])
-        self.validate_loader = DataLoader(validate_dataset, batch_size=self.config['train']['batch_size'],
-                                          num_workers=self.config['train']['num_workers'], shuffle=True)
+            validate_dataset = VCTKTrain(dataset_config['path'], dataset_config['trainset'],
+                                      wav_dur=dataset_config['wav_dur'], is_trian=False)
+            self.validate_loader = DataLoader(validate_dataset, batch_size=self.config['train']['batch_size'],
+                                              num_workers=self.config['train']['num_workers'])
 
-        # 初始化测试集
-        snrs = tuple_data(dataset_config['test_snrs'])
-        self.eval_loaders = []
-        for snr in snrs:
-            eval_dataset = EvalSpeechDataset(dataset_config['path'], dataset_config['test_files'], snr)
-            eval_loader = DataLoader(eval_dataset, batch_size=1, num_workers=self.config['train']['num_workers'], shuffle=True)
+            self.eval_loaders = []
+            eval_dataset = VCTKEval(dataset_config['path'], dataset_config['testset'])
+            eval_loader = DataLoader(eval_dataset, batch_size=1, num_workers=self.config['train']['num_workers'])
             self.eval_loaders.append(eval_loader)
+
+        elif self.config['DeepXi_dataset']:
+            dataset_config = self.config['DeepXi_dataset']
+            train_dataset = DeepXiTrain(dataset_config['path'], dataset_config['train_clean_files'],
+                                               dataset_config['train_noise_files'], wav_dur=dataset_config['wav_dur'])
+            self.train_loader = DataLoader(train_dataset, batch_size=self.config['train']['batch_size'],
+                                           num_workers=self.config['train']['num_workers'], shuffle=True)
+
+            validate_dataset = DeepXiVal(dataset_config['path'], dataset_config['validate_files'],
+                                                wav_dur=dataset_config['wav_dur'])
+            self.validate_loader = DataLoader(validate_dataset, batch_size=self.config['train']['batch_size'],
+                                              num_workers=self.config['train']['num_workers'])
+
+            snrs = tuple_data(dataset_config['test_snrs'])
+            self.eval_loaders = []
+            for snr in snrs:
+                eval_dataset = DeepXiEval(dataset_config['path'], dataset_config['test_files'], snr)
+                eval_loader = DataLoader(eval_dataset, batch_size=1, num_workers=self.config['train']['num_workers'])
+                self.eval_loaders.append(eval_loader)
 
     def train_epoch(self):
         self.model.train()
@@ -143,6 +159,7 @@ class Trainer(object):
                 noisy_x, clean_x = noisy_x.to(self.device), clean_x.to(self.device)
                 with torch.no_grad():
                     pred_x = self.model(noisy_x)
+                    clean_x = clean_x[:, :pred_x.shape[1]]
 
                 # 计算si_snr
                 si_snr_ = si_snr(pred_x, clean_x)
@@ -154,7 +171,9 @@ class Trainer(object):
                 # 计算pesq
                 psq = 0.
                 for i in range(len(clean_x)):
-                    psq += pesq(clean_x[i], pred_x[i], 16000)
+                    # psq += pesq(clean_x[i], pred_x[i], 16000) # MOS-PESQ
+                    psq += pesq(16000, clean_x[i], pred_x[i], 'wb')  # WB-PESQ 宽带
+                    # psq += pesq(16000, clean_x[i], pred_x[i], 'nb')  # NB-PESQ 窄带
                 psq /= len(clean_x)
                 pesq_total += psq
 

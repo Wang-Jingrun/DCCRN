@@ -2,9 +2,9 @@ gpu_num: 0 # 在指定编号的gpu上训练
 device: cuda # 此项不用修改
 
 train:
-  batch_size: 16
+  batch_size: 1
   epochs: 1000
-  num_workers: 4
+  num_workers: 1
 
 model:
   rnn_hidden: 256
@@ -25,9 +25,16 @@ scheduler:
 model_path: ./output
 load_model:
 
-# dataset
-dataset:
-  path: E:\Datasets\deep_xi_dataset
+# VoiceBank-DEMAND Corpus (VCTK)
+VCTK_dataset:
+#  path: D:\PycharmProjects\DATASETS\VoiceBank+DEMAND
+#  trainset: trainset.txt
+#  testset: testset.txt
+#  wav_dur: 3
+
+# Deep Xi dataset
+DeepXi_dataset:
+  path: D:\PycharmProjects\DATASETS\deep_xi_dataset
   train_clean_files: train_clean_speech.txt
   train_noise_files: train_noise.txt
   validate_files: val_clean_speech.txt
