@@ -151,12 +151,12 @@ class Trainer(object):
         self.model.eval()
         print("\n\nModel evaluation.\n")
 
-        start = time.time()
         si_snrs = []
         pesqs = []
         for index, loader in enumerate(self.eval_loaders):
             pesq_total, si_snr_total, counter = 0., 0., 0.
 
+            start = time.time()
             for noisy_x, clean_x in loader:
                 noisy_x, clean_x = noisy_x.to(self.device), clean_x.to(self.device)
                 with torch.no_grad():
