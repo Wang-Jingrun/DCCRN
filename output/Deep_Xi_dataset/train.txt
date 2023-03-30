@@ -1,0 +1,77 @@
+"""ONLY PART"""
+
+nohup: ignoring input
+Total parameters:3671917
+Epoch: 1/1000... Loss: -15.885944... Test Loss: -15.384855... time: 60.9min
+Epoch: 2/1000... Loss: -15.984558... Test Loss: -15.589937... time: 67.2min
+Validation loss decreased (-15.384855 --> -15.589937).  Saving model ...
+Epoch: 3/1000... Loss: -16.020161... Test Loss: -15.821279... time: 65.3min
+Validation loss decreased (-15.589937 --> -15.821279).  Saving model ...
+Epoch: 4/1000... Loss: -15.961222... Test Loss: -15.664740... time: 57.2min
+Epoch: 5/1000... Loss: -15.986953... Test Loss: -15.798867... time: 81.9min
+Epoch: 6/1000... Loss: -16.022295... Test Loss: -15.704646... time: 57.9min
+Epoch: 7/1000... Loss: -16.032910... Test Loss: -15.863031... time: 58.3min
+Validation loss decreased (-15.821279 --> -15.863031).  Saving model ...
+Epoch: 8/1000... Loss: -16.031550... Test Loss: -15.832751... time: 57.0min
+Epoch: 9/1000... Loss: -15.989424... Test Loss: -15.728397... time: 46.2min
+Epoch: 10/1000... Loss: -16.093115... Test Loss: -15.823481... time: 57.1min
+Epoch 00011: reducing learning rate of group 0 to 2.5000e-04.
+Epoch: 11/1000... Loss: -16.052623... Test Loss: -15.803601... time: 60.2min
+Epoch: 12/1000... Loss: -16.200245... Test Loss: -16.028830... time: 71.8min
+Validation loss decreased (-15.863031 --> -16.028830).  Saving model ...
+Epoch: 13/1000... Loss: -16.288355... Test Loss: -16.034537... time: 62.8min
+Validation loss decreased (-16.028830 --> -16.034537).  Saving model ...
+Epoch: 14/1000... Loss: -16.214737... Test Loss: -15.923379... time: 54.2min
+Epoch: 15/1000... Loss: -16.258158... Test Loss: -16.000293... time: 54.1min
+Epoch: 16/1000... Loss: -16.266148... Test Loss: -15.889575... time: 51.3min
+Epoch 00017: reducing learning rate of group 0 to 1.2500e-04.
+Epoch: 17/1000... Loss: -16.253869... Test Loss: -15.941999... time: 66.2min
+Epoch: 18/1000... Loss: -16.314107... Test Loss: -16.028810... time: 71.7min
+Epoch: 19/1000... Loss: -16.301787... Test Loss: -16.037220... time: 80.8min
+Validation loss decreased (-16.034537 --> -16.037220).  Saving model ...
+Epoch: 20/1000... Loss: -16.348629... Test Loss: -15.980266... time: 56.2min
+Epoch: 21/1000... Loss: -16.346561... Test Loss: -16.047505... time: 58.8min
+Validation loss decreased (-16.037220 --> -16.047505).  Saving model ...
+Epoch: 22/1000... Loss: -16.376480... Test Loss: -16.009450... time: 61.4min
+Epoch: 23/1000... Loss: -16.330827... Test Loss: -16.078083... time: 79.0min
+Validation loss decreased (-16.047505 --> -16.078083).  Saving model ...
+Epoch: 24/1000... Loss: -16.332843... Test Loss: -16.000301... time: 81.5min
+Epoch: 25/1000... Loss: -16.250546... Test Loss: -16.078525... time: 89.2min
+Validation loss decreased (-16.078083 --> -16.078525).  Saving model ...
+Epoch: 26/1000... Loss: -16.278113... Test Loss: -16.179255... time: 72.9min
+Validation loss decreased (-16.078525 --> -16.179255).  Saving model ...
+
+
+
+Epoch: 1/1000... Loss: -16.384948... Test Loss: -16.057520... time: 63.7min
+Epoch: 2/1000... Loss: -16.304010... Test Loss: -15.990686... time: 53.7min
+Epoch: 3/1000... Loss: -16.427118... Test Loss: -16.038420... time: 138.4min
+Epoch: 4/1000... Loss: -16.392157... Test Loss: -16.064761... time: 93.9min
+Validation loss decreased (-16.057520 --> -16.064761).  Saving model ...
+Epoch: 5/1000... Loss: -16.350983... Test Loss: -16.124550... time: 49.6min
+Validation loss decreased (-16.064761 --> -16.124550).  Saving model ...
+Epoch: 6/1000... Loss: -16.416679... Test Loss: -16.033730... time: 48.1min
+Epoch: 7/1000... Loss: -16.374564... Test Loss: -16.006872... time: 47.9min
+Epoch: 8/1000... Loss: -16.347012... Test Loss: -16.006757... time: 48.1min
+Epoch 00009: reducing learning rate of group 0 to 6.2500e-05.
+Epoch: 9/1000... Loss: -16.345319... Test Loss: -15.981309... time: 48.2min
+Epoch: 10/1000... Loss: -16.405918... Test Loss: -16.082707... time: 48.2min
+Epoch: 11/1000... Loss: -16.375574... Test Loss: -15.970276... time: 48.1min
+Epoch: 12/1000... Loss: -16.462975... Test Loss: -16.111915... time: 48.0min
+Epoch 00013: reducing learning rate of group 0 to 3.1250e-05.
+Epoch: 13/1000... Loss: -16.474988... Test Loss: -16.087200... time: 48.0min
+Epoch: 14/1000... Loss: -16.472728... Test Loss: -16.258049... time: 48.0min
+Validation loss decreased (-16.124550 --> -16.258049).  Saving model ...
+Epoch: 15/1000... Loss: -16.378355... Test Loss: -16.056003... time: 48.0min
+Epoch: 16/1000... Loss: -16.446824... Test Loss: -16.096353... time: 37.7min
+Epoch: 17/1000... Loss: -16.387606... Test Loss: -16.094738... time: 26.9min
+Epoch 00018: reducing learning rate of group 0 to 1.5625e-05.
+Epoch: 18/1000... Loss: -16.406453... Test Loss: -16.083800... time: 26.9min
+Epoch: 19/1000... Loss: -16.447755... Test Loss: -16.100603... time: 26.9min
+Epoch: 20/1000... Loss: -16.385118... Test Loss: -16.137153... time: 28.5min
+Epoch: 21/1000... Loss: -16.462728... Test Loss: -16.129187... time: 35.0min
+Epoch 00022: reducing learning rate of group 0 to 7.8125e-06.
+Epoch: 22/1000... Loss: -16.403875... Test Loss: -16.103475... time: 43.9min
+Epoch: 23/1000... Loss: -16.413052... Test Loss: -16.074847... time: 42.7min
+Epoch: 24/1000... Loss: -16.444779... Test Loss: -16.129545... time: 46.9min
+Early stopping!

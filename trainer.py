@@ -151,10 +151,12 @@ class Trainer(object):
         self.model.eval()
         print("\n\nModel evaluation.\n")
 
+        start = time.time()
+        si_snrs = []
+        pesqs = []
         for index, loader in enumerate(self.eval_loaders):
             pesq_total, si_snr_total, counter = 0., 0., 0.
 
-            start = time.time()
             for noisy_x, clean_x in loader:
                 noisy_x, clean_x = noisy_x.to(self.device), clean_x.to(self.device)
                 with torch.no_grad():
@@ -179,6 +181,9 @@ class Trainer(object):
 
                 counter += 1
 
+            si_snrs.append(si_snr_total / counter)
+            pesqs.append(pesq_total / counter)
+
             end = time.time()
             clear_cache()
             print("Dataset[{}]...".format(index),
@@ -190,6 +195,10 @@ class Trainer(object):
                 soundfile.write(f'./output/noisy{counter}_testset{index}.wav', noisy_x[0].cpu().detach().numpy().astype('int16'), 16000)
                 soundfile.write(f'./output/clean{counter}_testset{index}.wav', clean_x[0].astype('int16'), 16000)
                 soundfile.write(f'./output/enhance{counter}_testset{index}.wav', pred_x[0].astype('int16'), 16000)
+
+        print("Average...",
+              "Si-SNR: {:.6f}...".format(sum(si_snrs) / len(self.eval_loaders)),
+              "PESQ: {:.6f}...".format(sum(pesqs) / len(self.eval_loaders)))
 
     def save(self, pth_name='model_state.pth'):
         os.makedirs(self.config['model_path'], exist_ok=True)

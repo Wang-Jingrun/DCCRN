@@ -1,0 +1,12 @@
+nohup: ignoring input
+Total parameters:3671917
+
+
+Model evaluation.
+
+Dataset[0]... Si-SNR: 4.232014... PESQ: 1.212317... time: 0.2min
+Dataset[1]... Si-SNR: 8.748660... PESQ: 1.442072... time: 0.4min
+Dataset[2]... Si-SNR: 12.660577... PESQ: 1.825029... time: 0.6min
+Dataset[3]... Si-SNR: 16.261324... PESQ: 2.297169... time: 0.7min
+Dataset[4]... Si-SNR: 19.547053... PESQ: 2.776873... time: 0.9min
+Average... Si-SNR: 12.289926... PESQ: 1.910692...
