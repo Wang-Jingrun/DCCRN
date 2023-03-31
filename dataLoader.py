@@ -8,7 +8,7 @@ def load_wav(path, wav_file):
     wav, sr = soundfile.read(os.path.join(path, wav_file))
     wav = wav.astype('float32')
     # 能量归一化
-    # wav = wav / ((np.sqrt(np.sum(wav ** 2)) / ((wav.size) + 1e-7)) + 1e-7)
+    # wav = wav / ((np.sqrt(np.sum(wav ** 2)) / (wav.size + 1e-7)) + 1e-7)
     return wav
 
 

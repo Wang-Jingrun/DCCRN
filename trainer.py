@@ -167,8 +167,9 @@ class Trainer(object):
                 si_snr_ = si_snr(pred_x, clean_x)
                 si_snr_total += si_snr_.item()
 
-                pred_x = pred_x.detach().cpu().numpy()
                 clean_x = clean_x.detach().cpu().numpy()
+                noisy_x = noisy_x.detach().cpu().numpy()
+                pred_x = pred_x.detach().cpu().numpy()
 
                 # 计算pesq
                 psq = 0.
@@ -183,18 +184,20 @@ class Trainer(object):
 
             si_snrs.append(si_snr_total / counter)
             pesqs.append(pesq_total / counter)
-
             end = time.time()
-            clear_cache()
+
             print("Dataset[{}]...".format(index),
-                  "Si-SNR: {:.6f}...".format(si_snr_total / counter),
-                  "PESQ: {:.6f}...".format(pesq_total / counter),
+                  "Si-SNR: {:.6f}...".format(si_snrs[index]),
+                  "PESQ: {:.6f}...".format(pesqs[index]),
                   "time: {:.1f}min".format((end - start) / 60))
 
             if save_sample:
-                soundfile.write(f'./output/noisy{counter}_testset{index}.wav', noisy_x[0].cpu().detach().numpy().astype('int16'), 16000)
-                soundfile.write(f'./output/clean{counter}_testset{index}.wav', clean_x[0].astype('int16'), 16000)
-                soundfile.write(f'./output/enhance{counter}_testset{index}.wav', pred_x[0].astype('int16'), 16000)
+                clean_x = clean_x[0] / ((np.sqrt(np.sum(clean_x[0] ** 2)) / (clean_x.shape[1] + 1e-7)) + 1e-7)
+                noisy_x = noisy_x[0] / ((np.sqrt(np.sum(noisy_x[0] ** 2)) / (noisy_x.shape[1] + 1e-7)) + 1e-7)
+                pred_x = pred_x[0] / ((np.sqrt(np.sum(pred_x[0] ** 2)) / (pred_x.shape[1] + 1e-7)) + 1e-7)
+                soundfile.write(f'./output/clean{counter}_testset{index}.wav', clean_x.astype('int16'), 16000)
+                soundfile.write(f'./output/noisy{counter}_testset{index}.wav', noisy_x.astype('int16'), 16000)
+                soundfile.write(f'./output/enhance{counter}_testset{index}.wav', pred_x.astype('int16'), 16000)
 
         print("Average...",
               "Si-SNR: {:.6f}...".format(sum(si_snrs) / len(self.eval_loaders)),
