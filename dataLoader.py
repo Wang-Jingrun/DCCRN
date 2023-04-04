@@ -31,11 +31,11 @@ def add_noise(wav, noise, snr):
 class VCTKTrain(Dataset):
     def __init__(self, dataset_path, train_files, wav_dur=3, is_trian=True):
         super(VCTKTrain, self).__init__()
-        train_files = np.loadtxt(os.path.join(dataset_path, train_files), dtype='str').tolist()
+        train_files = np.loadtxt(train_files, dtype='str').tolist()
         if is_trian:
-            self.train_files = train_files[:10700]
+            self.train_files = train_files[:10415]
         else:
-            self.train_files = train_files[10700:]
+            self.train_files = train_files[10415:]
 
         self.dataset_path = dataset_path
         self.max_len = wav_dur * 16000
@@ -70,7 +70,7 @@ class VCTKTrain(Dataset):
 class VCTKEval(Dataset):
     def __init__(self, dataset_path, test_files):
         super(VCTKEval, self).__init__()
-        self.test_files = np.loadtxt(os.path.join(dataset_path, test_files), dtype='str')
+        self.test_files = np.loadtxt(test_files, dtype='str')
         self.dataset_path = dataset_path
 
     def __len__(self):

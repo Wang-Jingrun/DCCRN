@@ -27,9 +27,9 @@ load_model:
 
 # VoiceBank-DEMAND Corpus (VCTK)
 VCTK_dataset:
-  path: D:\PycharmProjects\DATASETS\VoiceBank+DEMAND
-  trainset: trainset.txt
-  testset: testset.txt
+  path: D:/PycharmProjects/DATASETS/VoiceBank+DEMAND
+  trainset: ./wavs_path/VoiceBank+DEMAND/trainset-shuffle.txt
+  testset: ./wavs_path/VoiceBank+DEMAND/testset.txt
   wav_dur: 3
 
 # Deep Xi dataset
